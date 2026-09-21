@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f172a">
+<title>GARAGE 19</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f1f5f9;color:#0f172a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:#0f172a;color:#fff;padding:18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
+.logo{font-size:22px;font-weight:800}.lang{background:#fff1;border:1px solid #ffffff33;color:#fff;border-radius:10px;padding:9px}
+main{max-width:720px;margin:auto;padding:16px}.hero{background:#0f172a;color:white;border-radius:20px;padding:22px;margin-bottom:14px}
+h1{margin:0 0 5px}.muted{color:#64748b;font-size:13px}.card{background:white;border-radius:17px;padding:17px;margin-bottom:13px;box-shadow:0 2px 12px #00000009}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:white;border-radius:15px;padding:15px}.stat b{font-size:20px;display:block;margin-top:5px}
+label{display:block;font-size:13px;font-weight:700;margin:11px 0 6px}input,select{width:100%;padding:13px;border:1px solid #cbd5e1;border-radius:11px;font-size:16px}
+button{cursor:pointer}.btn{width:100%;border:0;border-radius:12px;padding:13px;background:#0f172a;color:white;font-weight:700;margin-top:10px}.secondary{background:#e2e8f0;color:#0f172a}
+.row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #e2e8f0}.row:last-child{border:0}
+.good{background:#dcfce7;color:#166534;padding:10px;border-radius:10px}.bad{background:#fee2e2;color:#991b1b;padding:10px;border-radius:10px}
+nav{display:flex;gap:7px;overflow:auto;padding:10px 0}nav button{white-space:nowrap;border:0;background:white;border-radius:10px;padding:10px 12px}
+.hidden{display:none}.vehicle{display:flex;gap:12px;align-items:center}.photo{width:75px;height:60px;border-radius:10px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:28px}
+</style>
+</head>
+<body>
+<header><div class="logo">GARAGE 19</div><select id="language" class="lang" onchange="setLang(this.value)"><option value="fr">Français</option><option value="tr">Türkçe</option><option value="de">Deutsch</option><option value="en">English</option><option value="it">Italiano</option></select></header>
+<main>
+<nav><button onclick="page('home')">⌂ <span data-t="home">Accueil</span></button><button onclick="page('vehicles')">🚗 <span data-t="vehicles">Véhicules</span></button><button onclick="page('finance')">💳 <span data-t="finance">Financement</span></button></nav>
+<div id="content"></div>
+</main>
+<script>
+const T={
+fr:{home:"Accueil",vehicles:"Véhicules",finance:"Financement",welcome:"Bienvenue chez GARAGE 19",desc:"Vente de véhicules et financement à tempérament",price:"Prix du véhicule (CHF)",deposit:"Acompte (CHF)",months:"Nombre de mensualités",min:"Acompte minimum",calc:"Calculer",remaining:"Solde restant",monthly:"Mensualité",error:"L'acompte minimum requis est de",cars:"Nos véhicules",noCars:"Aucun véhicule enregistré pour le moment.",add:"Ajouter un véhicule",brand:"Marque",model:"Modèle",year:"Année",km:"Kilométrage",save:"Enregistrer",saved:"Véhicule enregistré."},
+tr:{home:"Ana Sayfa",vehicles:"Araçlar",finance:"Finansman",welcome:"GARAGE 19'a hoş geldiniz",desc:"Araç satışı ve taksitli finansman",price:"Araç fiyatı (CHF)",deposit:"Peşinat (CHF)",months:"Taksit sayısı",min:"Minimum peşinat",calc:"Hesapla",remaining:"Kalan borç",monthly:"Aylık taksit",error:"Gerekli minimum peşinat",cars:"Araçlarımız",noCars:"Henüz araç eklenmedi.",add:"Araç ekle",brand:"Marka",model:"Model",year:"Yıl",km:"Kilometre",save:"Kaydet",saved:"Araç kaydedildi."},
+de:{home:"Startseite",vehicles:"Fahrzeuge",finance:"Finanzierung",welcome:"Willkommen bei GARAGE 19",desc:"Fahrzeugverkauf und Ratenfinanzierung",price:"Fahrzeugpreis (CHF)",deposit:"Anzahlung (CHF)",months:"Anzahl Monatsraten",min:"Mindestanzahlung",calc:"Berechnen",remaining:"Restbetrag",monthly:"Monatsrate",error:"Erforderliche Mindestanzahlung",cars:"Unsere Fahrzeuge",noCars:"Noch keine Fahrzeuge.",add:"Fahrzeug hinzufügen",brand:"Marke",model:"Modell",year:"Jahr",km:"Kilometerstand",save:"Speichern",saved:"Fahrzeug gespeichert."},
+en:{home:"Home",vehicles:"Vehicles",finance:"Financing",welcome:"Welcome to GARAGE 19",desc:"Vehicle sales and installment financing",price:"Vehicle price (CHF)",deposit:"Down payment (CHF)",months:"Number of monthly payments",min:"Minimum down payment",calc:"Calculate",remaining:"Remaining balance",monthly:"Monthly payment",error:"Required minimum down payment",cars:"Our vehicles",noCars:"No vehicles registered yet.",add:"Add vehicle",brand:"Make",model:"Model",year:"Year",km:"Mileage",save:"Save",saved:"Vehicle saved."},
+it:{home:"Home",vehicles:"Veicoli",finance:"Finanziamento",welcome:"Benvenuti da GARAGE 19",desc:"Vendita di veicoli e finanziamento rateale",price:"Prezzo del veicolo (CHF)",deposit:"Acconto (CHF)",months:"Numero di rate mensili",min:"Acconto minimo",calc:"Calcola",remaining:"Saldo restante",monthly:"Rata mensile",error:"Acconto minimo richiesto",cars:"I nostri veicoli",noCars:"Nessun veicolo registrato.",add:"Aggiungi veicolo",brand:"Marca",model:"Modello",year:"Anno",km:"Chilometraggio",save:"Salva",saved:"Veicolo salvato."}
+};
+let lang=localStorage.g19lang||"fr";let cars=JSON.parse(localStorage.g19cars||"[]");
+function t(k){return T[lang][k]||k}function money(n){return Number(n||0).toLocaleString(lang==="de"?"de-CH":lang==="it"?"it-CH":lang==="fr"?"fr-CH":"en-CH",{minimumFractionDigits:2})+" CHF"}
+function setLang(v){lang=v;localStorage.g19lang=v;document.documentElement.lang=v;page("home")}
+function nav(){document.querySelectorAll("[data-t]").forEach(x=>x.textContent=t(x.dataset.t))}
+function page(p){
+if(p==="home")content.innerHTML=`<section class="hero"><h1>${t("welcome")}</h1><p>${t("desc")}</p></section><div class="grid"><div class="stat"><span class="muted">${t("vehicles")}</span><b>${cars.length}</b></div><div class="stat"><span class="muted">${t("min")}</span><b>70%</b></div></div>`;
+if(p==="vehicles")content.innerHTML=`<div class="card"><h2>${t("cars")}</h2><button class="btn" onclick="addVehicle()">${t("add")}</button></div>${cars.length?cars.map(c=>`<div class="card vehicle"><div class="photo">🚗</div><div><b>${c.brand} ${c.model}</b><div class="muted">${c.year} • ${Number(c.km||0).toLocaleString()} km</div><b>${money(c.price)}</b></div></div>`).join(""):`<div class="card">${t("noCars")}</div>`}`;
+if(p==="finance")content.innerHTML=`<div class="card"><h2>${t("finance")}</h2><label>${t("price")}</label><input id="price" type="number"><label>${t("deposit")}</label><input id="dep" type="number" oninput="calc()"><label>${t("months")}</label><input id="mo" type="number" value="12" oninput="calc()"><p class="muted">${t("min")}: <b>70%</b></p><div id="out"></div><button class="btn" onclick="calc()">${t("calc")}</button></div>`;
+nav()
+}
+function calc(){let p=+price.value||0,d=+dep.value||0,m=+mo.value||1,min=p*.7;if(d<min){out.innerHTML=`<div class="bad">${t("error")} ${money(min)}.</div>`;return}let r=p-d;out.innerHTML=`<div class="good">✓</div><div class="row"><span>${t("remaining")}</span><b>${money(r)}</b></div><div class="row"><span>${t("monthly")}</span><b>${money(r/m)}</b></div>`}
+function addVehicle(){let b=prompt(t("brand"));if(!b)return;let m=prompt(t("model"));if(!m)return;let y=prompt(t("year"));let k=prompt(t("km"));let p=+prompt(t("price"));if(!p)return;cars.push({brand:b,model:m,year:y,km:k,price:p});localStorage.g19cars=JSON.stringify(cars);alert(t("saved"));page("vehicles")}
+document.getElementById("language").value=lang;page("home");
+</script>
+</body></html>
